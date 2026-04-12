@@ -134,6 +134,12 @@ When reporting a bug, please include:
 
 ---
 
+## Privacy Policy
+
+[https://vrsoda.github.io/Sukito/privacy.html](https://vrsoda.github.io/Sukito/privacy.html)
+
+---
+
 ## License
 
 MIT — do whatever you want with it.
