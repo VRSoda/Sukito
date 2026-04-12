@@ -136,7 +136,7 @@ When reporting a bug, please include:
 
 ## Privacy Policy
 
-[https://vrsoda.github.io/Sukito/privacy.html](https://vrsoda.github.io/Sukito/privacy.html)
+[https://vrsoda.github.io/Sukito/](https://vrsoda.github.io/Sukito/)
 
 ---
 
