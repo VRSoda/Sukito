@@ -21,8 +21,6 @@ export interface AppSettings {
     isGoogleConnected: boolean;
     googleAccessToken?: string;
     googleRefreshToken?: string;
-    googleClientId?: string;
-    googleClientSecret?: string;
     owmApiKey?: string;
     selectedSound: string;
     language: "ko" | "ja" | "en";

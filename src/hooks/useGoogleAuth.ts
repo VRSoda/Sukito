@@ -16,15 +16,9 @@ export function useGoogleAuth({ settings, onSettingsUpdate, onSyncGoogle, onErro
 
     // Google 로그인 - 브라우저 팝업 → 자동 콜백 캡처
     const handleGoogleLogin = useCallback(async () => {
-        const clientId = settings.googleClientId || "";
-        const clientSecret = settings.googleClientSecret || "";
-        if (!clientId || !clientSecret) {
-            onError?.("Google Client ID와 Client Secret을 설정에서 먼저 입력해 주세요.");
-            return;
-        }
         try {
             setIsSyncing(true);
-            const tokens = await googleOAuthLogin(clientId, clientSecret);
+            const tokens = await googleOAuthLogin();
 
             if (tokens?.access_token) {
                 onSettingsUpdate({
@@ -34,7 +28,7 @@ export function useGoogleAuth({ settings, onSettingsUpdate, onSyncGoogle, onErro
                 });
                 onSyncGoogle(tokens.access_token);
             } else {
-                alert("❌ Google 로그인 실패");
+                onError?.("Google 로그인에 실패했어요.");
             }
         } catch (error) {
             console.error("Google login failed:", error);
@@ -42,7 +36,7 @@ export function useGoogleAuth({ settings, onSettingsUpdate, onSyncGoogle, onErro
         } finally {
             setIsSyncing(false);
         }
-    }, [settings.googleClientId, settings.googleClientSecret, onSettingsUpdate, onSyncGoogle]);
+    }, [onSettingsUpdate, onSyncGoogle]);
 
     // Google 로그아웃
     const handleGoogleLogout = useCallback(async () => {

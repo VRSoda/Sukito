@@ -29,7 +29,7 @@ export function useAppSetup({ onLoadTasks, onSettingsLoaded, onGoogleSync }: Use
 
             // Google 연동 상태라면 토큰 갱신 후 동기화
             if (parsed.isGoogleConnected && parsed.googleRefreshToken) {
-                const newToken = await refreshGoogleToken(parsed.googleRefreshToken, parsed.googleClientId || "", parsed.googleClientSecret || "");
+                const newToken = await refreshGoogleToken(parsed.googleRefreshToken);
                 if (newToken) {
                     // 갱신된 토큰을 저장하고 동기화
                     onSettingsLoaded({ googleAccessToken: newToken });

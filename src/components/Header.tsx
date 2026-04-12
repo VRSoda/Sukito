@@ -1,4 +1,4 @@
-import { CalendarDays, ChevronLeft, ChevronRight, Plus, RefreshCw, Settings as SettingsIcon, Sun, Cloud, CloudRain, CloudSnow, CloudLightning } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, Plus, RefreshCw, Settings as SettingsIcon, Sun, Cloud, CloudRain, CloudSnow, CloudLightning, X, Minus } from "lucide-react";
 import { format } from "date-fns";
 import { ko, ja, enUS } from "date-fns/locale";
 import { AppSettings } from "../types";
@@ -144,6 +144,24 @@ export function Header({ monthDate, weekOfMonthText, monthLabel, settings, isSyn
                     className="p-2 rounded-lg hover:bg-white/10 text-white/30 hover:text-white transition-all active:scale-90"
                 >
                     <SettingsIcon size={18} />
+                </button>
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        appWindow.hide();
+                    }}
+                    className="p-2 rounded-lg hover:bg-white/10 text-white/20 hover:text-white transition-all active:scale-90"
+                >
+                    <Minus size={18} />
+                </button>
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        appWindow.close();
+                    }}
+                    className="p-2 rounded-lg hover:bg-rose-500/20 text-white/20 hover:text-rose-400 transition-all active:scale-90"
+                >
+                    <X size={18} />
                 </button>
             </div>
         </header>

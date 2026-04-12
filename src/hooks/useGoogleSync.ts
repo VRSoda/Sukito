@@ -24,12 +24,12 @@ export function useGoogleSync(currentViewDate: Date, settings: AppSettings, onTo
     const refreshAccessToken = useCallback(async () => {
         if (!settings.googleRefreshToken) return null;
         try {
-            return await refreshGoogleToken(settings.googleRefreshToken, settings.googleClientId || "", settings.googleClientSecret || "");
+            return await refreshGoogleToken(settings.googleRefreshToken);
         } catch (error) {
             logDetailedError("Refresh access token", error);
             return null;
         }
-    }, [settings.googleRefreshToken, settings.googleClientId, settings.googleClientSecret]);
+    }, [settings.googleRefreshToken]);
 
     // 401 시 자동으로 토큰 갱신 후 재시도하는 헬퍼
     const withTokenRefresh = useCallback(async <T>(fn: (token: string) => Promise<T>): Promise<T | null> => {
@@ -39,7 +39,7 @@ export function useGoogleSync(currentViewDate: Date, settings: AppSettings, onTo
             return await fn(token);
         } catch (e: any) {
             if (e.response?.status === 401) {
-                const newToken = await refreshGoogleToken(settings.googleRefreshToken || "", settings.googleClientId || "", settings.googleClientSecret || "");
+                const newToken = await refreshGoogleToken(settings.googleRefreshToken || "");
                 if (newToken) {
                     onTokenRefreshed?.(newToken);
                     return await fn(newToken);

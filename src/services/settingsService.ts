@@ -16,8 +16,6 @@ export async function getDefaultSettings(): Promise<AppSettings> {
         isGoogleConnected: false,
         googleAccessToken: "",
         googleRefreshToken: "",
-        googleClientId: "",
-        googleClientSecret: "",
         owmApiKey: "",
         alwaysOnTop: false,
         autostart: false,

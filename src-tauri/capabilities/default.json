@@ -9,6 +9,10 @@
     "core:default",
     "opener:default",
     "core:window:allow-start-dragging",
+    "core:window:allow-close",
+    "core:window:allow-minimize",
+    "core:window:allow-hide",
+    "core:tray:default",
     "core:window:allow-request-user-attention",
     "autostart:default",
     "notification:default"

@@ -155,10 +155,8 @@ export function SettingsModal({ isOpen, settings, isSyncing, onClose, onUpdate, 
                             <Key size={18} className="text-white/20" />
                             <span className="text-xs font-semibold">{t.apiKeys}</span>
                         </div>
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 gap-3">
                             {[
-                                { label: t.googleClientId, field: "googleClientId" as const },
-                                { label: t.googleClientSecret, field: "googleClientSecret" as const },
                                 { label: t.owmApiKey, field: "owmApiKey" as const },
                             ].map(({ label, field }) => (
                                 <div key={field} className="flex flex-col gap-1">

@@ -10,7 +10,7 @@ name = "tauri_app_lib"
 path = "src/lib.rs"
 
 [dependencies]
-tauri = { version = "2.0.0", features = [] }
+tauri = { version = "2.0.0", features = ["tray-icon"] }
 tauri-plugin-opener = "2.0.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -20,6 +20,9 @@ tauri-plugin-autostart = "2.0.0"
 tauri-plugin-notification = "2.0.0" # 알림 플러그인 추가
 winreg = "0.52"
 urlencoding = "2"
+sha2 = "0.10"
+base64 = "0.22"
+rand = "0.8"
 
 [build-dependencies]
 tauri-build = { version = "2.0.0", features = [] }

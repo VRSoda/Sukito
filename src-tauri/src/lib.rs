@@ -1,5 +1,6 @@
 use tauri_plugin_autostart::MacosLauncher;
 use tauri::{Manager, Runtime};
+use tauri::tray::{TrayIconBuilder, TrayIconEvent};
 use tauri_plugin_opener::OpenerExt;
 use serde::{Serialize, Deserialize};
 use winreg::enums::*;
@@ -7,6 +8,9 @@ use winreg::RegKey;
 use std::fs;
 use std::path::PathBuf;
 use std::net::TcpListener;
+use sha2::{Sha256, Digest};
+use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
+use rand::Rng;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct WeatherData {
@@ -144,14 +148,15 @@ fn get_system_accent_color() -> String {
     "#3b82f6".to_string()
 }
 
+const GOOGLE_CLIENT_ID: &str = "899070082187-0lbd9aq9urpkhs13vs5qv8mgcaivg7bo.apps.googleusercontent.com";
+
 #[tauri::command]
-async fn google_refresh_token(refresh_token: String, client_id: String, client_secret: String) -> Result<String, String> {
+async fn google_refresh_token(refresh_token: String) -> Result<String, String> {
     let client = reqwest::Client::new();
     let resp = client
         .post("https://oauth2.googleapis.com/token")
         .form(&[
-            ("client_id", client_id.as_str()),
-            ("client_secret", client_secret.as_str()),
+            ("client_id", GOOGLE_CLIENT_ID),
             ("refresh_token", refresh_token.as_str()),
             ("grant_type", "refresh_token"),
         ])
@@ -165,9 +170,21 @@ async fn google_refresh_token(refresh_token: String, client_id: String, client_s
 }
 
 #[tauri::command]
-async fn google_oauth_login(app_handle: tauri::AppHandle, client_id: String, client_secret: String) -> Result<serde_json::Value, String> {
+async fn google_oauth_login(app_handle: tauri::AppHandle) -> Result<serde_json::Value, String> {
     use tokio::net::TcpListener as TokioListener;
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
+
+    // PKCE code_verifier 생성 (43~128자 랜덤 문자열)
+    let code_verifier: String = rand::thread_rng()
+        .sample_iter(&rand::distributions::Alphanumeric)
+        .take(64)
+        .map(char::from)
+        .collect();
+
+    // code_challenge = BASE64URL(SHA-256(code_verifier))
+    let mut hasher = Sha256::new();
+    hasher.update(code_verifier.as_bytes());
+    let code_challenge = URL_SAFE_NO_PAD.encode(hasher.finalize());
 
     // 사용 가능한 랜덤 포트 찾기
     let port = {
@@ -179,10 +196,11 @@ async fn google_oauth_login(app_handle: tauri::AppHandle, client_id: String, cli
     let scopes = "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.readonly";
 
     let auth_url = format!(
-        "https://accounts.google.com/o/oauth2/v2/auth?client_id={}&redirect_uri={}&response_type=code&scope={}&access_type=offline&prompt=consent",
-        client_id,
+        "https://accounts.google.com/o/oauth2/v2/auth?client_id={}&redirect_uri={}&response_type=code&scope={}&access_type=offline&prompt=consent&code_challenge={}&code_challenge_method=S256",
+        GOOGLE_CLIENT_ID,
         urlencoding::encode(&redirect_uri),
-        urlencoding::encode(scopes)
+        urlencoding::encode(scopes),
+        code_challenge
     );
 
     // 브라우저에서 구글 로그인 페이지 열기
@@ -239,11 +257,11 @@ async fn google_oauth_login(app_handle: tauri::AppHandle, client_id: String, cli
     let token_resp = client
         .post("https://oauth2.googleapis.com/token")
         .form(&[
-            ("client_id", client_id.as_str()),
-            ("client_secret", client_secret.as_str()),
+            ("client_id", GOOGLE_CLIENT_ID),
             ("code", code.as_str()),
             ("grant_type", "authorization_code"),
             ("redirect_uri", redirect_uri.as_str()),
+            ("code_verifier", code_verifier.as_str()),
         ])
         .send().await.map_err(|e| e.to_string())?
         .json::<serde_json::Value>().await.map_err(|e| e.to_string())?;
@@ -261,6 +279,22 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec!["--flag"])))
         .plugin(tauri_plugin_notification::init())
+        .setup(|app| {
+            let _tray = TrayIconBuilder::new()
+                .icon(app.default_window_icon().unwrap().clone())
+                .tooltip("Sukito")
+                .on_tray_icon_event(|tray: &tauri::tray::TrayIcon, event| {
+                    if let TrayIconEvent::Click { .. } = event {
+                        let app = tray.app_handle();
+                        if let Some(window) = app.get_webview_window("main") {
+                            let _ = window.show();
+                            let _ = window.set_focus();
+                        }
+                    }
+                })
+                .build(app)?;
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             get_weather_data,
             set_always_on_top,

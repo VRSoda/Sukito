@@ -9,9 +9,9 @@ export interface GoogleTokens {
 }
 
 // Tauri 백엔드에서 로컬 서버로 OAuth 콜백 자동 캡처
-export async function googleOAuthLogin(clientId: string, clientSecret: string): Promise<GoogleTokens | null> {
+export async function googleOAuthLogin(): Promise<GoogleTokens | null> {
     try {
-        const result = await invoke<GoogleTokens>("google_oauth_login", { clientId, clientSecret });
+        const result = await invoke<GoogleTokens>("google_oauth_login");
         return result;
     } catch (error) {
         console.error("Google OAuth login failed:", error);
@@ -19,10 +19,9 @@ export async function googleOAuthLogin(clientId: string, clientSecret: string): 
     }
 }
 
-// Rust 백엔드에서 리프레시 토큰으로 새 액세스 토큰 획득
-export async function refreshGoogleToken(refreshToken: string, clientId: string, clientSecret: string): Promise<string | null> {
+export async function refreshGoogleToken(refreshToken: string): Promise<string | null> {
     try {
-        const accessToken = await invoke<string>("google_refresh_token", { refreshToken, clientId, clientSecret });
+        const accessToken = await invoke<string>("google_refresh_token", { refreshToken });
         return accessToken;
     } catch (error) {
         console.error("Failed to refresh token:", error);
