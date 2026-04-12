@@ -75,6 +75,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout main
+          cp docs/latest.json /tmp/latest.json
+          git pull origin main
+          cp /tmp/latest.json docs/latest.json
           git add docs/latest.json
           git commit -m "chore: update latest.json for ${GITHUB_REF#refs/tags/}"
-          git push origin HEAD:main
+          git push origin main
