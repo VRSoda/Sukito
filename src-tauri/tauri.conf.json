@@ -40,7 +40,7 @@
         "notification": null,
         "autostart": null,
         "updater": {
-            "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDNFQTdDOTA1NTQ0OTg2RDMKUldUVGhrbFVCY21uUGhzYWlOK3J5NWRnZTEwL2FlMlhXRTEvc1NJZk4zZEk5Vk9sdk9UMzJWQ1cK",
+            "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDdBNTdCRkU4M0YxQUEzQzAKUldUQW94by82TDlYZXBoc3JCbExaQlFJaXVSSWs3bkdlRnNsZDk5Vy9sWENlaFVqQmEya0lMQVUK",
             "endpoints": ["https://vrsoda.github.io/Sukito/latest.json"]
         }
     }
