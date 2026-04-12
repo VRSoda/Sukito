@@ -12,8 +12,6 @@ const TEMP_DEFAULT: AppSettings = {
     isGoogleConnected: false,
     googleAccessToken: "",
     googleRefreshToken: "",
-    googleClientId: "",
-    googleClientSecret: "",
     owmApiKey: "",
     alwaysOnTop: false,
     autostart: false,

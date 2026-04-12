@@ -5,13 +5,12 @@ import { AppSettings } from "../types";
 import { googleOAuthLogin } from "../utils/google-auth";
 
 interface UseGoogleAuthProps {
-    settings: AppSettings;
     onSettingsUpdate: (settings: Partial<AppSettings>) => void;
     onSyncGoogle: (accessToken: string) => void;
     onError?: (msg: string) => void;
 }
 
-export function useGoogleAuth({ settings, onSettingsUpdate, onSyncGoogle, onError }: UseGoogleAuthProps) {
+export function useGoogleAuth({ onSettingsUpdate, onSyncGoogle, onError }: UseGoogleAuthProps) {
     const [isSyncing, setIsSyncing] = useState(false);
 
     // Google 로그인 - 브라우저 팝업 → 자동 콜백 캡처

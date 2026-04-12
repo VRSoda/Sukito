@@ -50,7 +50,6 @@ function App() {
     );
     const { weather } = useWeather((detectedTz) => updateTimeZone(detectedTz), settings.language, settings.owmApiKey);
     const { isSyncing: isGoogleAuthSyncing, handleGoogleLogin, handleGoogleLogout } = useGoogleAuth({
-        settings,
         onSettingsUpdate: updateSettings,
         onSyncGoogle: syncWithGoogle,
         onError: (msg) => setDialog({ message: msg, onConfirm: () => setDialog(null) }),
