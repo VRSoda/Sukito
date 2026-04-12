@@ -1,0 +1,42 @@
+{
+    "$schema": "https://schema.tauri.app/config/2",
+    "productName": "Sukito",
+    "version": "0.1.0",
+    "identifier": "com.vrsoda.sukito",
+    "build": {
+        "beforeDevCommand": "npm run dev",
+        "devUrl": "http://localhost:1420",
+        "beforeBuildCommand": "npm run build",
+        "frontendDist": "../dist"
+    },
+    "app": {
+        "windows": [
+            {
+                "title": "Sukito",
+                "width": 1000,
+                "height": 600,
+                "resizable": true,
+                "minWidth": 600,
+                "minHeight": 220,
+                "decorations": false,
+                "transparent": true,
+                "alwaysOnTop": false,
+                "visible": true,
+                "center": true,
+                "skipTaskbar": true
+            }
+        ],
+        "security": {
+            "csp": null
+        }
+    },
+    "bundle": {
+        "active": true,
+        "targets": "all",
+        "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"]
+    },
+    "plugins": {
+        "notification": null,
+        "autostart": null
+    }
+}
