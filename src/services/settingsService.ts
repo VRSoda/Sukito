@@ -13,6 +13,7 @@ export async function getDefaultSettings(): Promise<AppSettings> {
         userTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         opacity: 0.6,
         selectedSound: SOUNDS[0].file,
+        alarmVolume: 0.5,
         isGoogleConnected: false,
         googleAccessToken: "",
         googleRefreshToken: "",

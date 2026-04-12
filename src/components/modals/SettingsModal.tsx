@@ -1,5 +1,5 @@
-import { useRef } from "react";
-import { X, Settings as SettingsIcon, Monitor, Share2, Layers, Music, Globe, Lock, Key, Trash2, FolderOpen } from "lucide-react";
+import { useRef, useState } from "react";
+import { X, Settings as SettingsIcon, Monitor, Share2, Layers, Music, Globe, Lock, Key, Trash2, FolderOpen, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
 import { invoke } from "@tauri-apps/api/core";
 import { AppSettings } from "../../types";
@@ -18,7 +18,29 @@ interface SettingsModalProps {
 
 export function SettingsModal({ isOpen, settings, isSyncing, onClose, onUpdate, onGoogleLogin, onGoogleLogout, onClearData }: SettingsModalProps) {
     const audioRef = useRef<HTMLAudioElement | null>(null);
+    const [updateStatus, setUpdateStatus] = useState<"idle" | "checking" | "installing">("idle");
     const t = TRANSLATIONS[settings.language || "ko"];
+
+    const handleCheckUpdate = async () => {
+        setUpdateStatus("checking");
+        try {
+            const version = await invoke<string | null>("check_update");
+            if (version) {
+                const msg = t.updateAvailable(version);
+                if (window.confirm(msg)) {
+                    setUpdateStatus("installing");
+                    await invoke("install_update");
+                } else {
+                    setUpdateStatus("idle");
+                }
+            } else {
+                alert(t.updateNone);
+                setUpdateStatus("idle");
+            }
+        } catch {
+            setUpdateStatus("idle");
+        }
+    };
 
     if (!isOpen) return null;
 
@@ -28,6 +50,7 @@ export function SettingsModal({ isOpen, settings, isSyncing, onClose, onUpdate, 
             audioRef.current.src = "";
         }
         const audio = new Audio(`/${file}`);
+        audio.volume = settings.alarmVolume ?? 0.5;
         audioRef.current = audio;
         audio.play().catch((e) => console.error(e));
         onUpdate({ selectedSound: file });
@@ -145,7 +168,15 @@ export function SettingsModal({ isOpen, settings, isSyncing, onClose, onUpdate, 
                                     </button>
                                 ))}
                             </div>
-                            <p className="text-[9px] text-white/10 font-medium">{t.soundTip}</p>
+                            <div className="flex items-center gap-3">
+                                <span className="text-[9px] text-white/30 font-semibold uppercase tracking-wider w-12">{t.volume}</span>
+                                <input type="range" min="0" max="1" step="0.05" value={settings.alarmVolume ?? 0.5} onChange={(e) => {
+                                        const vol = Number.parseFloat(e.target.value);
+                                        if (audioRef.current) audioRef.current.volume = vol;
+                                        onUpdate({ alarmVolume: vol });
+                                    }} className="flex-1 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-accent" />
+                                <span className="text-[9px] font-black text-white/30 w-6 text-right">{Math.round((settings.alarmVolume ?? 0.5) * 100)}%</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -173,6 +204,14 @@ export function SettingsModal({ isOpen, settings, isSyncing, onClose, onUpdate, 
                         </div>
                     </div>
                     <div className="flex justify-end gap-2">
+                        <button
+                            onClick={handleCheckUpdate}
+                            disabled={updateStatus !== "idle"}
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-bold text-white/40 bg-white/5 hover:bg-white/10 transition-all border border-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <RefreshCw size={13} className={updateStatus === "checking" ? "animate-spin" : ""} />
+                            {updateStatus === "installing" ? t.updateInstalling : t.checkUpdate}
+                        </button>
                         <button
                             onClick={() => invoke("open_data_folder")}
                             className="flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-bold text-white/40 bg-white/5 hover:bg-white/10 transition-all border border-white/10"

@@ -1,10 +1,10 @@
 // 알람 음성 재생 관련 유틸리티
 
 // 오디오 객체로 음성 재생
-export function playAlarmSound(soundFile: string, loop: boolean = true): HTMLAudioElement {
+export function playAlarmSound(soundFile: string, loop: boolean = true, volume: number = 0.5): HTMLAudioElement {
     const audio = new Audio(`/${soundFile}`);
     audio.loop = loop;
-    audio.volume = 0.6;
+    audio.volume = volume;
     audio.play().catch((e) => console.error("Sound play failed:", e));
     return audio;
 }

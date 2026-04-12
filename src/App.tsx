@@ -40,7 +40,7 @@ function App() {
     const { tasks, loadTasks, saveTasks } = useTasks();
     const { weekStart, currentViewDate, timeProgress, goToPreviousWeek, goToNextWeek, goToToday, getViewHeader } = useWeekView();
     const { settings, updateSettings, updateTimeZone } = useSettings();
-    const { activeAlarm, startRinging, stopRinging } = useAlarm(settings.selectedSound);
+    const { activeAlarm, startRinging, stopRinging } = useAlarm(settings.selectedSound, settings.alarmVolume ?? 0.5);
     const { isModalOpen, currentSelectedDate, newTaskText, newTaskTime, isRecurring, recurrenceType, alarmEnabled, editingTaskId, setNewTaskText, setNewTaskTime, setAlarmEnabled, openModal, closeModal, handleRecurringToggle } = useTaskModal();
     const onTokenRefreshed = useCallback((newToken: string) => updateSettings({ googleAccessToken: newToken }), [updateSettings]);
     const { isSyncing, syncWithGoogle, refreshAccessToken, createGoogleEvent, updateGoogleEvent, deleteGoogleEvent } = useGoogleSync(

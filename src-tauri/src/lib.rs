@@ -1,4 +1,6 @@
 use tauri_plugin_autostart::MacosLauncher;
+use tauri_plugin_updater::UpdaterExt;
+use tauri_plugin_window_state::StateFlags;
 use tauri::{Manager, Runtime};
 use tauri::tray::{TrayIconBuilder, TrayIconEvent};
 use tauri_plugin_opener::OpenerExt;
@@ -107,6 +109,25 @@ async fn get_weather_data(lang: Option<String>, owm_api_key: String) -> Result<W
     };
     let description = w["weather"][0]["description"].as_str().unwrap_or("").to_string();
     Ok(WeatherData { temp, icon: icon.to_string(), description, timezone })
+}
+
+#[tauri::command]
+async fn check_update(app_handle: tauri::AppHandle) -> Result<Option<String>, String> {
+    let updater = app_handle.updater().map_err(|e| e.to_string())?;
+    match updater.check().await {
+        Ok(Some(update)) => Ok(Some(update.version.clone())),
+        Ok(None) => Ok(None),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
+async fn install_update(app_handle: tauri::AppHandle) -> Result<(), String> {
+    let updater = app_handle.updater().map_err(|e| e.to_string())?;
+    if let Some(update) = updater.check().await.map_err(|e| e.to_string())? {
+        update.download_and_install(|_, _| {}, || {}).await.map_err(|e| e.to_string())?;
+    }
+    Ok(())
 }
 
 #[tauri::command]
@@ -279,6 +300,8 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec!["--flag"])))
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_window_state::Builder::new().with_state_flags(StateFlags::SIZE | StateFlags::POSITION).build())
         .setup(|app| {
             let _tray = TrayIconBuilder::new()
                 .icon(app.default_window_icon().unwrap().clone())
@@ -304,7 +327,9 @@ pub fn run() {
             get_tasks,
             save_tasks,
             google_oauth_login,
-            google_refresh_token
+            google_refresh_token,
+            check_update,
+            install_update
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

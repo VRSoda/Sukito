@@ -9,6 +9,7 @@ const TEMP_DEFAULT: AppSettings = {
     userTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     opacity: 0.6,
     selectedSound: "",
+    alarmVolume: 0.5,
     isGoogleConnected: false,
     googleAccessToken: "",
     googleRefreshToken: "",

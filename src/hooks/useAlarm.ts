@@ -9,7 +9,7 @@ interface ActiveAlarm {
     time: string;
 }
 
-export function useAlarm(soundFile: string) {
+export function useAlarm(soundFile: string, volume: number = 0.6) {
     const [activeAlarm, setActiveAlarm] = useState<ActiveAlarm>({ show: false, title: "", time: "" });
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -17,9 +17,9 @@ export function useAlarm(soundFile: string) {
     const startRinging = useCallback(
         (title: string, time: string) => {
             setActiveAlarm({ show: true, title, time });
-            audioRef.current = playAlarmSound(soundFile);
+            audioRef.current = playAlarmSound(soundFile, true, volume);
         },
-        [soundFile],
+        [soundFile, volume],
     );
 
     // 알람 중지

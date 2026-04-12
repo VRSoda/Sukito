@@ -23,6 +23,7 @@ export interface AppSettings {
     googleRefreshToken?: string;
     owmApiKey?: string;
     selectedSound: string;
+    alarmVolume: number;
     language: "ko" | "ja" | "en";
     userTimeZone: string;
 }

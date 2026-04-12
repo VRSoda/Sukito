@@ -24,3 +24,7 @@ dist-ssr
 
 # Tauri build output
 src-tauri/target/
+
+# Signing keys
+sukito.key
+sukito.key.pub
