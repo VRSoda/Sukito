@@ -28,3 +28,6 @@ src-tauri/target/
 # Signing keys
 sukito.key
 sukito.key.pub
+
+# Claude Code
+.claude/
