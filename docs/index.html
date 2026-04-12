@@ -3,104 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sukito — Privacy Policy</title>
+    <title>Sukito</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: #0f0f0f;
             color: #e0e0e0;
-            line-height: 1.8;
-            padding: 60px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
         }
-        .container {
-            max-width: 720px;
-            margin: 0 auto;
-        }
-        h1 {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #fff;
-            margin-bottom: 8px;
-        }
-        .subtitle {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 48px;
-        }
-        h2 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #fff;
-            margin-top: 40px;
-            margin-bottom: 12px;
-        }
-        p, li {
-            color: #aaa;
-            font-size: 0.95rem;
-        }
-        ul {
-            padding-left: 20px;
-        }
-        li {
-            margin-bottom: 6px;
-        }
+        h1 { font-size: 2.5rem; font-weight: 800; color: #fff; margin-bottom: 12px; }
+        .desc { color: #666; font-size: 1rem; max-width: 480px; text-align: center; line-height: 1.7; margin-bottom: 40px; }
+        .links { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
         a {
-            color: #60a5fa;
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
             text-decoration: none;
+            transition: opacity 0.2s;
         }
-        a:hover {
-            text-decoration: underline;
+        a:hover { opacity: 0.8; }
+        .primary { background: #1d4ed8; color: #fff; }
+        .secondary { background: #1a1a1a; color: #aaa; border: 1px solid #333; }
+        footer {
+            position: fixed;
+            bottom: 24px;
+            font-size: 0.8rem;
+            color: #333;
         }
-        .divider {
-            border: none;
-            border-top: 1px solid #222;
-            margin: 40px 0;
-        }
+        footer a { color: #444; text-decoration: none; }
+        footer a:hover { color: #60a5fa; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Privacy Policy</h1>
-        <p class="subtitle">Sukito · Last updated: April 2026</p>
-
-        <p>Sukito is a desktop calendar widget for Windows. This policy explains what data the app accesses and how it is handled.</p>
-
-        <h2>Data We Access</h2>
-        <p>When you connect your Google account, Sukito requests access to:</p>
-        <ul>
-            <li>Google Calendar — to read and write your calendar events</li>
-        </ul>
-
-        <h2>How Your Data Is Used</h2>
-        <ul>
-            <li>Calendar events are fetched and displayed within the app on your device</li>
-            <li>Events you create or modify in the app are written back to your Google Calendar</li>
-            <li>No data is sent to any third-party server — all processing happens locally on your machine</li>
-        </ul>
-
-        <h2>Data Storage</h2>
-        <ul>
-            <li>OAuth tokens (used to stay logged in) are stored locally in the app's data folder on your device</li>
-            <li>Calendar data is not persisted beyond what is cached temporarily in memory</li>
-            <li>Your API keys (e.g. OpenWeatherMap) are stored locally in your browser's localStorage and never transmitted</li>
-        </ul>
-
-        <h2>Data Sharing</h2>
-        <p>Sukito does not share, sell, or transmit your personal data to any external parties. The only external services the app communicates with are:</p>
-        <ul>
-            <li><a href="https://calendar.google.com" target="_blank">Google Calendar API</a> — to sync your events</li>
-            <li><a href="https://openweathermap.org" target="_blank">OpenWeatherMap API</a> — to fetch local weather data</li>
-            <li><a href="https://ip-api.com" target="_blank">ip-api.com</a> — to detect your approximate location for weather (no account or personal data required)</li>
-        </ul>
-
-        <h2>Revoking Access</h2>
-        <p>You can disconnect your Google account at any time from the app's Settings screen. You can also revoke access from your <a href="https://myaccount.google.com/permissions" target="_blank">Google Account permissions page</a>.</p>
-
-        <hr class="divider">
-
-        <h2>Contact</h2>
-        <p>If you have any questions about this policy, please open an issue on <a href="https://github.com/VRSoda/Sukito/issues" target="_blank">GitHub</a>.</p>
+    <h1>Sukito</h1>
+    <p class="desc">A desktop calendar widget for Windows that syncs with Google Calendar and adapts to your accent color and the weather outside.</p>
+    <div class="links">
+        <a href="https://github.com/VRSoda/Sukito/releases" class="primary">Download</a>
+        <a href="https://github.com/VRSoda/Sukito" class="secondary">GitHub</a>
+        <a href="./privacy.html" class="secondary">Privacy Policy</a>
     </div>
+    <footer><a href="./privacy.html">Privacy Policy</a></footer>
 </body>
 </html>
