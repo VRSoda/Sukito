@@ -33,7 +33,7 @@ export function NotificationToast(props: Readonly<NotificationToastProps>) {
                             <p className="text-base font-bold text-white truncate">{title}</p>
                         </div>
                         <button onClick={onClose} className="px-4 py-2 rounded-xl bg-accent/20 hover:bg-accent/30 text-accent font-black text-xs tracking-widest uppercase transition-all border border-accent/20">
-                            OK
+                            {t.confirm}
                         </button>
                     </div>
                 </motion.div>

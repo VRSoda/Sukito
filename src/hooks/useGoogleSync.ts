@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import axios from "axios";
 import { format, addWeeks, parseISO, startOfWeek } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
@@ -17,14 +17,39 @@ const GOOGLE_DAY_MAP: Record<string, string> = {
     Sat: "SA",
 };
 
-export function useGoogleSync(currentViewDate: Date, settings: AppSettings, onTokenRefreshed?: (token: string) => void) {
+interface GoogleSyncCallbacks {
+    onTokenRefreshed?: (token: string) => void;
+    onSyncSuccess?: () => void;
+    onSyncFailed?: () => void;
+    onEventSaved?: () => void;
+    onEventUpdated?: () => void;
+    onEventDeleted?: () => void;
+    onEventFailed?: () => void;
+}
+
+export function useGoogleSync(currentViewDate: Date, settings: AppSettings, callbacks: GoogleSyncCallbacks = {}) {
     const [isSyncing, setIsSyncing] = useState(false);
     const userTimeZone = settings.userTimeZone;
+
+    // 항상 최신 콜백을 참조하도록 ref로 관리 (stale closure 방지)
+    const cbRef = useRef(callbacks);
+    useEffect(() => { cbRef.current = callbacks; });
+    const { onTokenRefreshed, onSyncSuccess, onSyncFailed, onEventSaved, onEventUpdated, onEventDeleted, onEventFailed } = {
+        onTokenRefreshed: useCallback((t: string) => cbRef.current.onTokenRefreshed?.(t), []),
+        onSyncSuccess: useCallback(() => cbRef.current.onSyncSuccess?.(), []),
+        onSyncFailed: useCallback(() => cbRef.current.onSyncFailed?.(), []),
+        onEventSaved: useCallback(() => cbRef.current.onEventSaved?.(), []),
+        onEventUpdated: useCallback(() => cbRef.current.onEventUpdated?.(), []),
+        onEventDeleted: useCallback(() => cbRef.current.onEventDeleted?.(), []),
+        onEventFailed: useCallback(() => cbRef.current.onEventFailed?.(), []),
+    };
 
     const refreshAccessToken = useCallback(async () => {
         if (!settings.googleRefreshToken) return null;
         try {
-            return await refreshGoogleToken(settings.googleRefreshToken);
+            const token = await refreshGoogleToken(settings.googleRefreshToken);
+            if (token) onTokenRefreshed?.(token);
+            return token;
         } catch (error) {
             logDetailedError("Refresh access token", error);
             return null;
@@ -130,9 +155,11 @@ export function useGoogleSync(currentViewDate: Date, settings: AppSettings, onTo
                         isHolidayEvent,
                     };
                 });
+                onSyncSuccess?.();
                 return googleEvents;
             } catch (e: any) {
                 if (e.response?.status === 401) throw new Error("UNAUTHORIZED");
+                onSyncFailed?.();
                 return null;
             } finally {
                 setIsSyncing(false);
@@ -161,9 +188,11 @@ export function useGoogleSync(currentViewDate: Date, settings: AppSettings, onTo
                     headers: { Authorization: `Bearer ${token}` },
                 })
             );
+            onEventSaved?.();
             return res?.data.id ?? null;
         } catch (e: any) {
             console.error("Create Google Event Error:", e.response?.data || e);
+            onEventFailed?.();
             return null;
         }
     };
@@ -188,8 +217,10 @@ export function useGoogleSync(currentViewDate: Date, settings: AppSettings, onTo
                     headers: { Authorization: `Bearer ${token}` },
                 })
             );
+            onEventUpdated?.();
         } catch (e: any) {
             console.error("Update Google Event Error:", e.response?.data || e);
+            onEventFailed?.();
         }
     };
 
@@ -201,8 +232,10 @@ export function useGoogleSync(currentViewDate: Date, settings: AppSettings, onTo
                     headers: { Authorization: `Bearer ${token}` },
                 })
             );
+            onEventDeleted?.();
         } catch (e: any) {
             console.error("Delete Google Event Error:", e.response?.data || e);
+            onEventFailed?.();
         }
     };
 

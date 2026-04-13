@@ -9,9 +9,9 @@ export interface GoogleTokens {
 }
 
 // Tauri 백엔드에서 로컬 서버로 OAuth 콜백 자동 캡처
-export async function googleOAuthLogin(): Promise<GoogleTokens | null> {
+export async function googleOAuthLogin(lang?: string): Promise<GoogleTokens | null> {
     try {
-        const result = await invoke<GoogleTokens>("google_oauth_login");
+        const result = await invoke<GoogleTokens>("google_oauth_login", { lang });
         return result;
     } catch (error) {
         console.error("Google OAuth login failed:", error);

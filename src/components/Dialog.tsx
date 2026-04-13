@@ -1,12 +1,15 @@
 import { motion } from "framer-motion";
+import { TRANSLATIONS } from "../constants";
 
 interface DialogProps {
     readonly message: string;
     readonly onConfirm: () => void;
     readonly onCancel?: () => void;
+    readonly language?: string;
 }
 
-export function Dialog({ message, onConfirm, onCancel }: DialogProps) {
+export function Dialog({ message, onConfirm, onCancel, language = "ko" }: DialogProps) {
+    const t = TRANSLATIONS[language as keyof typeof TRANSLATIONS] ?? TRANSLATIONS.ko;
     return (
         <div className="absolute inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
             <motion.div
@@ -21,14 +24,14 @@ export function Dialog({ message, onConfirm, onCancel }: DialogProps) {
                             onClick={onCancel}
                             className="px-4 py-2 rounded-xl text-xs font-bold text-white/40 hover:text-white/70 hover:bg-white/5 transition-all"
                         >
-                            Cancel
+                            {t.cancel}
                         </button>
                     )}
                     <button
                         onClick={onConfirm}
                         className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${onCancel ? "bg-rose-500/20 text-rose-400 hover:bg-rose-500/30" : "bg-accent/20 text-accent hover:bg-accent/30"}`}
                     >
-                        {onCancel ? "확인" : "OK"}
+                        {t.confirm}
                     </button>
                 </div>
             </motion.div>

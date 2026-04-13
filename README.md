@@ -2,11 +2,13 @@
 
 > A desktop calendar widget that syncs with Google Calendar and adapts its look based on your Windows accent color and the current weather outside.
 
-![Version](https://img.shields.io/badge/version-0.1.0-blue)
+![Version](https://img.shields.io/badge/version-0.3.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Tauri](https://img.shields.io/badge/Tauri-v2-FFC131?logo=tauri)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
 ![Tailwind](https://img.shields.io/badge/Tailwind-v4-38B2AC?logo=tailwindcss)
+
+**언어 / 言語:** [한국어](https://github.com/VRSoda/Sukito/wiki/한국어) · [日本語](https://github.com/VRSoda/Sukito/wiki/日本語)
 
 ---
 
@@ -55,7 +57,6 @@ Grab the latest build from the [Releases](https://github.com/VRSoda/Sukito/relea
 ### Other
 
 - **Multilingual**: Auto-detects your Windows display language on first launch (Korean, Japanese, English)
-- **No API keys in the binary**: All keys are entered in-app and stored locally — nothing is bundled at build time
 - **Widget lock**: Prevents accidental clicks or drags
 - **Background opacity**: Adjustable with a slider in real time
 - **Local data management**: Open the data folder or wipe everything from the settings screen
@@ -105,20 +106,18 @@ npm run tauri build
 
 ## API Keys
 
-API keys are entered directly in the app's settings — no config files or environment variables needed.
+### Google Calendar
 
-### Google OAuth 2.0
+Google OAuth is built into the app — no setup required. Just click **Login** in settings and sign in with your Google account.
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com/) and create a new project
-2. Enable the **Google Calendar API**
-3. Under Credentials, create an **OAuth 2.0 Client ID** (Desktop app)
-4. Add `http://127.0.0.1` to the authorized redirect URIs
-5. Paste the Client ID and Secret into the app settings
+> **Note:** You may see a *"Google hasn't verified this app"* warning. This is expected while OAuth verification is in progress. It is safe to proceed by clicking **Advanced → Go to Sukito (unsafe)**. This warning will be removed once approved.
 
 ### OpenWeatherMap
 
+Required for weather display. Free tier is sufficient.
+
 1. Sign up at [openweathermap.org](https://openweathermap.org)
-2. Generate an API key (free tier is enough)
+2. Generate an API key
 3. Paste it into the app settings
 
 ---

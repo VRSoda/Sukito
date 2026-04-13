@@ -1,7 +1,8 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { X, Settings as SettingsIcon, Monitor, Share2, Layers, Music, Globe, Lock, Key, Trash2, FolderOpen, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
 import { invoke } from "@tauri-apps/api/core";
+import { getVersion } from "@tauri-apps/api/app";
 import { AppSettings } from "../../types";
 import { SOUNDS, TRANSLATIONS } from "../../constants";
 
@@ -14,27 +15,39 @@ interface SettingsModalProps {
     readonly onGoogleLogin: () => void;
     readonly onGoogleLogout: () => void;
     readonly onClearData: () => void;
+    readonly onDialog: (msg: string, onConfirm: () => void, onCancel?: () => void) => void;
 }
 
-export function SettingsModal({ isOpen, settings, isSyncing, onClose, onUpdate, onGoogleLogin, onGoogleLogout, onClearData }: SettingsModalProps) {
+export function SettingsModal({ isOpen, settings, isSyncing, onClose, onUpdate, onGoogleLogin, onGoogleLogout, onClearData, onDialog }: SettingsModalProps) {
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [updateStatus, setUpdateStatus] = useState<"idle" | "checking" | "installing">("idle");
+    const [appVersion, setAppVersion] = useState<string>("");
     const t = TRANSLATIONS[settings.language || "ko"];
+
+    useEffect(() => {
+        getVersion().then(setAppVersion);
+    }, []);
 
     const handleCheckUpdate = async () => {
         setUpdateStatus("checking");
         try {
             const version = await invoke<string | null>("check_update");
             if (version) {
-                const msg = t.updateAvailable(version);
-                if (window.confirm(msg)) {
-                    setUpdateStatus("installing");
-                    await invoke("install_update");
-                } else {
-                    setUpdateStatus("idle");
-                }
+                onDialog(
+                    t.updateAvailable(version),
+                    async () => {
+                        setUpdateStatus("installing");
+                        await invoke("install_update");
+                        onDialog(
+                            t.updateRestartPrompt,
+                            () => invoke("restart_app").catch(() => location.reload()),
+                            () => setUpdateStatus("idle"),
+                        );
+                    },
+                    () => setUpdateStatus("idle"),
+                );
             } else {
-                alert(t.updateNone);
+                onDialog(t.updateNone, () => setUpdateStatus("idle"));
                 setUpdateStatus("idle");
             }
         } catch {
@@ -88,7 +101,7 @@ export function SettingsModal({ isOpen, settings, isSyncing, onClose, onUpdate, 
                         </div>
                         <div className="flex flex-col items-start justify-center">
                             <h2 className="text-base font-bold tracking-tight leading-tight">{t.settings}</h2>
-                            <p className="text-[10px] font-medium text-white/20 uppercase tracking-widest">{t.settingsDescription}</p>
+                            <p className="text-[10px] font-medium text-white/20 uppercase tracking-widest">{t.settingsDescription}{appVersion && ` · v${appVersion}`}</p>
                         </div>
                     </div>
                     <button onClick={onClose} className="p-1.5 rounded-full hover:bg-white/5 text-white/30 hover:text-white transition-all">
@@ -111,7 +124,7 @@ export function SettingsModal({ isOpen, settings, isSyncing, onClose, onUpdate, 
                         <div className="flex items-center justify-between p-3.5 bg-white/[0.02] rounded-2xl border border-white/[0.02] flex-1">
                             <div className="flex items-center gap-3">
                                 <Lock size={18} className="text-white/20" />
-                                <span className="text-xs font-semibold">{t.lockWidget ?? "위젯 잠금"}</span>
+                                <span className="text-xs font-semibold">{t.lockWidget}</span>
                             </div>
                             <button onClick={() => onUpdate({ isLocked: !settings.isLocked })} className={`w-10 h-5 rounded-full relative transition-all ${settings.isLocked ? "bg-accent" : "bg-white/10"}`}>
                                 <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${settings.isLocked ? "left-5.5" : "left-0.5"}`} />

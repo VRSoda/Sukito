@@ -12,6 +12,7 @@ import { SettingsModal } from "./components/modals/SettingsModal";
 import { WeatherAtmosphere } from "./components/WeatherAtmosphere";
 import { NotificationToast } from "./components/NotificationToast";
 import { Dialog } from "./components/Dialog";
+import { ToastList } from "./components/ToastList";
 
 // Hooks
 import { useTasks } from "./hooks/useTasks";
@@ -23,6 +24,7 @@ import { useTaskModal } from "./hooks/useTaskModal";
 import { useAppSetup } from "./hooks/useAppSetup";
 import { useGoogleAuth } from "./hooks/useGoogleAuth";
 import { useWeekView } from "./hooks/useWeekView";
+import { useToast } from "./hooks/useToast";
 
 // Utils
 import { generateAlarmKey } from "./utils/alarm";
@@ -31,7 +33,7 @@ import { triggerFullNotification } from "./services/alarmService";
 
 // Types & Constants
 import { Task } from "./types";
-import { DAYS } from "./constants";
+import { DAYS, TRANSLATIONS } from "./constants";
 
 function App() {
     // ===== State Management =====
@@ -42,14 +44,37 @@ function App() {
     const { settings, updateSettings, updateTimeZone } = useSettings();
     const { activeAlarm, startRinging, stopRinging } = useAlarm(settings.selectedSound, settings.alarmVolume ?? 0.5);
     const { isModalOpen, currentSelectedDate, newTaskText, newTaskTime, isRecurring, recurrenceType, alarmEnabled, editingTaskId, setNewTaskText, setNewTaskTime, setAlarmEnabled, openModal, closeModal, handleRecurringToggle } = useTaskModal();
+    const { toasts, toast } = useToast();
+    const t = TRANSLATIONS[settings.language || "ko"];
+
     const onTokenRefreshed = useCallback((newToken: string) => updateSettings({ googleAccessToken: newToken }), [updateSettings]);
     const { isSyncing, syncWithGoogle, refreshAccessToken, createGoogleEvent, updateGoogleEvent, deleteGoogleEvent } = useGoogleSync(
         currentViewDate,
         settings,
-        onTokenRefreshed,
+        {
+            onTokenRefreshed,
+            onSyncSuccess: () => toast.success(t.syncSuccess),
+            onSyncFailed: () => toast.error(t.syncFailed),
+            onEventSaved: () => toast.success(t.eventSaved),
+            onEventUpdated: () => toast.success(t.eventUpdated),
+            onEventDeleted: () => toast.success(t.eventDeleted),
+            onEventFailed: () => toast.error(t.eventFailed),
+        },
     );
-    const { weather } = useWeather((detectedTz) => updateTimeZone(detectedTz), settings.language, settings.owmApiKey);
+    const owmErrorShownRef = useRef(false);
+    const { weather } = useWeather(
+        (detectedTz) => updateTimeZone(detectedTz),
+        settings.language,
+        settings.owmApiKey,
+        (type) => {
+            if (owmErrorShownRef.current) return;
+            owmErrorShownRef.current = true;
+            toast.error(type === "missing" ? t.owmKeyMissing : t.owmKeyInvalid);
+            setTimeout(() => { owmErrorShownRef.current = false; }, 30 * 60 * 1000);
+        },
+    );
     const { isSyncing: isGoogleAuthSyncing, handleGoogleLogin, handleGoogleLogout } = useGoogleAuth({
+        lang: settings.language,
         onSettingsUpdate: updateSettings,
         onSyncGoogle: syncWithGoogle,
         onError: (msg) => setDialog({ message: msg, onConfirm: () => setDialog(null) }),
@@ -58,11 +83,35 @@ function App() {
     // ===== App Initialization =====
     useAppSetup({
         onLoadTasks: loadTasks,
-        onSettingsLoaded: (savedSettings) => {
-            updateSettings(savedSettings);
-        },
-        onGoogleSync: (token) => syncWithGoogle(token),
+        onSettingsLoaded: (savedSettings) => { updateSettings(savedSettings); },
+        onGoogleSync: (token) => handleSyncRef.current(token, true),
+        onAuthError: () => setDialog({
+            message: t.sessionExpiredPrompt,
+            onConfirm: () => { setDialog(null); setIsSettingsOpen(true); },
+        }),
+        onTokenRefreshed,
     });
+
+    // ===== DevTools (F12) =====
+    useEffect(() => {
+        const handleF12 = (e: KeyboardEvent) => {
+            if (e.key === "F12") invoke("open_devtools");
+        };
+        window.addEventListener("keydown", handleF12);
+        return () => window.removeEventListener("keydown", handleF12);
+    }, []);
+
+    // ===== Network status =====
+    useEffect(() => {
+        const handleOffline = () => toast.error(t.offline);
+        const handleOnline = () => toast.success(t.online);
+        window.addEventListener("offline", handleOffline);
+        window.addEventListener("online", handleOnline);
+        return () => {
+            window.removeEventListener("offline", handleOffline);
+            window.removeEventListener("online", handleOnline);
+        };
+    }, [settings.language]);
 
     // ===== References =====
     const playedAlarms = useRef<Set<string>>(new Set());
@@ -278,6 +327,9 @@ function App() {
         const finalTasks = updateLocalTasks(updatedTask, !!editingTaskId);
 
         saveTasks(finalTasks);
+        if (!settings.isGoogleConnected) {
+            toast.success(editingTaskId ? t.eventUpdated : t.eventSaved);
+        }
         closeModal();
     };
 
@@ -288,6 +340,7 @@ function App() {
                 await deleteGoogleEvent(task.googleEventId);
             }
             saveTasks(tasks.filter((t) => t.id !== editingTaskId));
+            if (!settings.isGoogleConnected) toast.success(t.eventDeleted);
             closeModal();
         }
     };
@@ -358,7 +411,8 @@ function App() {
                 onDelete={handleDeleteTask}
             />
 
-            {dialog && <Dialog message={dialog.message} onConfirm={dialog.onConfirm} onCancel={dialog.onCancel} />}
+            {dialog && <Dialog message={dialog.message} onConfirm={dialog.onConfirm} onCancel={dialog.onCancel} language={settings.language} />}
+            <ToastList toasts={toasts} />
 
             <SettingsModal
                 isOpen={isSettingsOpen}
@@ -368,13 +422,16 @@ function App() {
                 onUpdate={(s) => { updateSettings(s); if (s.alwaysOnTop !== undefined) invoke("set_always_on_top", { alwaysOnTop: s.alwaysOnTop }); }}
                 onGoogleLogin={handleGoogleLogin}
                 onGoogleLogout={handleGoogleLogout}
+                onDialog={(msg, onConfirm, onCancel) => setDialog({ message: msg, onConfirm: () => { setDialog(null); onConfirm(); }, onCancel: onCancel ? () => { setDialog(null); onCancel(); } : undefined })}
                 onClearData={() =>
                     setDialog({
-                        message: "모든 설정과 일정이 삭제됩니다. 계속하시겠습니까?",
+                        message: t.clearDataConfirm,
                         onConfirm: async () => {
                             setDialog(null);
+                            const lang = settings.language;
                             localStorage.clear();
                             await invoke("save_tasks", { tasks: [] });
+                            localStorage.setItem("glassy_settings", JSON.stringify({ language: lang }));
                             location.reload();
                         },
                         onCancel: () => setDialog(null),

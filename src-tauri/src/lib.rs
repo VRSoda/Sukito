@@ -143,6 +143,11 @@ async fn open_data_folder(app_handle: tauri::AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
+fn open_devtools(window: tauri::WebviewWindow) {
+    window.open_devtools();
+}
+
+#[tauri::command]
 fn get_system_language() -> String {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     if let Ok(intl) = hkcu.open_subkey("Control Panel\\International") {
@@ -169,7 +174,8 @@ fn get_system_accent_color() -> String {
     "#3b82f6".to_string()
 }
 
-const GOOGLE_CLIENT_ID: &str = "899070082187-0lbd9aq9urpkhs13vs5qv8mgcaivg7bo.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID: &str = "899070082187-kqloqko31gbvqi79soagmnh9bvi3hifs.apps.googleusercontent.com";
+const GOOGLE_CLIENT_SECRET: &str = env!("GOOGLE_CLIENT_SECRET");
 
 #[tauri::command]
 async fn google_refresh_token(refresh_token: String) -> Result<String, String> {
@@ -178,6 +184,7 @@ async fn google_refresh_token(refresh_token: String) -> Result<String, String> {
         .post("https://oauth2.googleapis.com/token")
         .form(&[
             ("client_id", GOOGLE_CLIENT_ID),
+            ("client_secret", GOOGLE_CLIENT_SECRET),
             ("refresh_token", refresh_token.as_str()),
             ("grant_type", "refresh_token"),
         ])
@@ -191,7 +198,7 @@ async fn google_refresh_token(refresh_token: String) -> Result<String, String> {
 }
 
 #[tauri::command]
-async fn google_oauth_login(app_handle: tauri::AppHandle) -> Result<serde_json::Value, String> {
+async fn google_oauth_login(app_handle: tauri::AppHandle, lang: Option<String>) -> Result<serde_json::Value, String> {
     use tokio::net::TcpListener as TokioListener;
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
@@ -261,11 +268,27 @@ async fn google_oauth_login(app_handle: tauri::AppHandle) -> Result<serde_json::
         .into_owned();
 
     // 브라우저에 완료 페이지 표시
-    let html = "<html><body style='font-family:sans-serif;text-align:center;padding:60px;background:#111;color:#fff'>\
-        <h2 style='color:#4ade80'>✅ 로그인 완료!</h2>\
-        <p style='color:#aaa'>이 탭을 닫고 앱으로 돌아가세요.</p>\
-        <script>setTimeout(()=>window.close(),2000)</script>\
-        </body></html>";
+    let (title, subtitle) = match lang.as_deref().unwrap_or("en") {
+        "ko" => ("로그인 완료", "이 탭을 닫고 앱으로 돌아가세요."),
+        "ja" => ("ログイン完了", "このタブを閉じてアプリに戻ってください。"),
+        _    => ("Login Successful", "You can close this tab and return to the app."),
+    };
+    let html = format!(
+        "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'>\
+        <meta name='viewport' content='width=device-width,initial-scale=1'>\
+        <title>Sukito</title>\
+        <style>*{{margin:0;padding:0;box-sizing:border-box}}body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0f0f;color:#e0e0e0;min-height:100vh;display:flex;align-items:center;justify-content:center}}.card{{text-align:center;padding:48px 40px;background:#161616;border-radius:24px;border:1px solid #ffffff12;box-shadow:0 24px 64px #00000060}}.icon{{width:56px;height:56px;background:#4ade8020;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px}}.title{{font-size:1.3rem;font-weight:700;color:#fff;margin-bottom:8px}}.sub{{font-size:0.85rem;color:#666}}.bar{{width:180px;height:2px;background:#ffffff10;border-radius:2px;margin:24px auto 0;overflow:hidden}}.fill{{height:100%;background:#4ade80;border-radius:2px;animation:fill 2s linear forwards}}@keyframes fill{{from{{width:0}}to{{width:100%}}}}</style>\
+        </head><body>\
+        <div class='card'>\
+        <div class='icon'>✓</div>\
+        <div class='title'>{}</div>\
+        <div class='sub'>{}</div>\
+        <div class='bar'><div class='fill'></div></div>\
+        </div>\
+        <script>setTimeout(()=>window.close(),2200)</script>\
+        </body></html>",
+        title, subtitle
+    );
     let response = format!(
         "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: {}\r\n\r\n{}",
         html.len(), html
@@ -279,6 +302,7 @@ async fn google_oauth_login(app_handle: tauri::AppHandle) -> Result<serde_json::
         .post("https://oauth2.googleapis.com/token")
         .form(&[
             ("client_id", GOOGLE_CLIENT_ID),
+            ("client_secret", GOOGLE_CLIENT_SECRET),
             ("code", code.as_str()),
             ("grant_type", "authorization_code"),
             ("redirect_uri", redirect_uri.as_str()),
@@ -322,6 +346,7 @@ pub fn run() {
             get_weather_data,
             set_always_on_top,
             open_data_folder,
+            open_devtools,
             get_system_language,
             get_system_accent_color,
             get_tasks,

@@ -1,8 +1,11 @@
 import { Plus, X, Type, Clock, Trash2, CalendarClock, Bell, BellOff } from "lucide-react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
+import { ko, ja, enUS } from "date-fns/locale";
 import { AppSettings } from "../../types";
-import { DAYS, TRANSLATIONS } from "../../constants";
+import { TRANSLATIONS } from "../../constants";
+
+const LOCALE_MAP = { ko, ja, en: enUS };
 
 interface TaskModalProps {
     isOpen: boolean;
@@ -26,6 +29,7 @@ interface TaskModalProps {
 export function TaskModal(props: Readonly<TaskModalProps>) {
     const { isOpen, editingTaskId, currentSelectedDate, newTaskText, newTaskTime, isRecurring, recurrenceType, alarmEnabled, settings, onClose, onTextChange, onTimeChange, onRecurringToggle, onAlarmToggle, onSave, onDelete } = props;
     const t = TRANSLATIONS[settings.language || "ko"];
+    const currentLocale = LOCALE_MAP[settings.language || "ko"];
 
     if (!isOpen) return null;
 
@@ -40,7 +44,7 @@ export function TaskModal(props: Readonly<TaskModalProps>) {
                         <div className="flex flex-col items-start justify-center">
                             <h2 className="text-base font-bold tracking-tight leading-tight">{editingTaskId ? t.editEvent : t.addEvent}</h2>
                             <p className="text-[10px] font-medium text-white/20 uppercase tracking-widest">
-                                {format(currentSelectedDate, "yyyy. MM. dd")} ({DAYS[currentSelectedDate.getDay()]})
+                                {format(currentSelectedDate, "yyyy. MM. dd")} ({format(currentSelectedDate, "EEE", { locale: currentLocale })})
                             </p>
                         </div>
                     </div>
