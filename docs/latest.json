@@ -1,11 +1,11 @@
 {
-  "version": "0.3.0",
+  "version": "0.4.0",
   "notes": "",
-  "pub_date": "2026-04-12T23:54:17Z",
+  "pub_date": "2026-04-13T01:16:03Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUQW94by82TDlYZXJQVGxCR1VkTGlSTUZJV1ZBdjU0bGhjUlNGN29qTThJTmRHb0FIbkN5WkZKdHduMWpvd3ZuTlVoOW1NOWJTWjNnNnhkakc3YnA3c3ZqbVVEck1tZ0FvPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzc2MDM4MDU0CWZpbGU6U3VraXRvXzAuMy4wX3g2NC1zZXR1cC5leGUKMldLZ2dIcUNmam10cU1MdTlmRXEvMWtrdkRaM2hLbElDaUhmR1JTelZqZlZ3OVlNZkFPVE5qQjdsV1U0UU1BZWY4b28vdzNJcUFsa2x5SmxrTzRmQlE9PQo=",
-      "url": "https://github.com/VRSoda/Sukito/releases/download/v0.3.0/Sukito_0.3.0_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUQW94by82TDlYZXVWQmRTUVNvNkRsdWJUa1FCbExNZVNtdVkvT1hZL1paTVR2cENsUHBIOE1VUUhoNWpBOWl6YW5ZM1kyRnlDZzdpUnJuT3hWNE5DL2RFTmh4ZGwwTUE0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzc2MDQyOTU5CWZpbGU6U3VraXRvXzAuNC4wX3g2NC1zZXR1cC5leGUKVnRuQ0RKZXlKOElUTTlNNjgyblR0STE0ZTViTzBZd2Z4a0dFWi91ajhVUFdLYm9jNXNocXhXaThuY2pLTHlzRGpHelZUaGZtRk1SVTNuK2hIbENJRGc9PQo=",
+      "url": "https://github.com/VRSoda/Sukito/releases/download/v0.4.0/Sukito_0.4.0_x64-setup.exe"
     }
   }
 }
