@@ -2,7 +2,7 @@
 
 > A desktop calendar widget that syncs with Google Calendar and adapts its look based on your Windows accent color and the current weather outside.
 
-![Version](https://img.shields.io/badge/version-0.3.0-blue)
+![Version](https://img.shields.io/badge/version-0.4.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Tauri](https://img.shields.io/badge/Tauri-v2-FFC131?logo=tauri)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
